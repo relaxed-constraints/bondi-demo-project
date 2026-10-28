@@ -1,0 +1,5 @@
+# Start/reuse the MongoDB service from BONDI's pinned Docker setup.
+start_docker: true
+batch_size: 1000
+# Explicitly opt in to replacing bondi_demo.electric_vehicles on subsequent runs.
+reset: false

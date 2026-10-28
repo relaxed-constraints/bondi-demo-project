@@ -44,7 +44,8 @@ Tool documentation: [pytest](https://docs.pytest.org/en/stable/getting-started.h
 
 ## Learning path
 
-Only the project setup is implemented so far. We will add these steps incrementally:
+Database preparation is implemented. Start with the [step-by-step walkthrough](docs/walkthrough.md).
+We will add the remaining stages incrementally:
 
 1. **Prepare the database:** start MongoDB using BONDI's Docker setup, download the
    dataset, import it, and record its provenance with Yanex (`prepare_db.py`).
@@ -67,3 +68,15 @@ We will use only `electric_vehicles/train.jsonl` from
 The planned download is pinned to revision
 `9af20c2698454dd33403c993501f5e1c0007643a` for reproducibility.
 Downloaded data and generated results stay out of Git.
+
+## Reusable code and experiments
+
+`src/bondi_demo/data.py` contains ordinary Python functions.
+`experiments/prepare_db.py` orchestrates them through Yanex.
+The editable package installation lets tests and notebooks import the same functions.
+
+```sh
+uv run yanex run experiments/prepare_db.py -c experiments/configs/prepare.yaml -n prepare-ev
+```
+
+Install and start Docker first; see the walkthrough for reruns and cleanup.
