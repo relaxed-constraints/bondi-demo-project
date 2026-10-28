@@ -73,4 +73,4 @@ uv run yanex run experiments/workload.py \
 Run `uv run pytest` and read `tests/test_workload.py`: it generates real BONDI queries
 from a tiny sample and checks the saved artifact without requiring MongoDB.
 
-Next we will benchmark the saved workload against the supplied index sets.
+Next, [benchmark the saved workload](benchmark.md) against the supplied index sets.

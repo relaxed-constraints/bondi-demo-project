@@ -48,8 +48,9 @@ Tool documentation: [pytest](https://docs.pytest.org/en/stable/getting-started.h
 
 ## Learning path
 
-Database preparation and workload generation are implemented. Start with the
-[preparation walkthrough](docs/walkthrough.md), then [generate a workload](docs/workload.md).
+Database preparation, workload generation and benchmarking are implemented. Start with the
+[preparation walkthrough](docs/walkthrough.md), then [generate a workload](docs/workload.md)
+and [benchmark index sets](docs/benchmark.md).
 We will add the remaining stages incrementally:
 
 1. **Prepare the database:** start MongoDB using BONDI's deployment API, download the

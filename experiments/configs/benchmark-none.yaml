@@ -1,0 +1,6 @@
+index_set: "no-index"
+# Ordered [field, direction] pairs; 1 is ascending, -1 is descending.
+indexes: []
+warmups: 1
+repetitions: 3
+timeout_seconds: 60
