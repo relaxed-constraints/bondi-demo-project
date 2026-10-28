@@ -96,7 +96,8 @@ print(experiment.load_artifact("workload_times.json"))
 print(rows[0])
 ```
 
-Keep the three benchmark IDs for the analysis notebook we will add next.
+Next, [analyse the results](analysis.md) in the notebook. It discovers benchmark
+experiments through Yanex filters, so you do not need to copy their IDs manually.
 
 ## Bonus: index set C
 
