@@ -55,8 +55,10 @@ for entry in list(workload)[:3]:
 ```
 
 Each entry holds its pattern ID and a `MongoFindQuery`. You can also inspect
-`entry.query.sort`, `.projection`, `.skip` and `.limit`. The experiment records
-`query_count` and `generation_seconds` as metrics.
+`entry.query.sort`, `.projection`, `.skip` and `.limit`. The experiment also saves `patterns.jsonl` using each pattern's `to_dict()` method;
+restore those rows with `MongoQueryPattern.from_dict()`. Their list positions match
+the workload pattern IDs. Metrics include `query_count`, `pattern_count` and
+`generation_seconds`.
 
 ## Try a small change
 

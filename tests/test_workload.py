@@ -1,11 +1,13 @@
 """Exercise real BONDI generation and serialization using a tiny sample."""
 
+import json
 import runpy
 from collections import Counter
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import yanex
+from bondi.mongodb import MongoQueryPattern
 from bondi.workload import Workload
 
 from bondi_demo.workload import generate_workload
@@ -20,10 +22,10 @@ def test_generation_and_experiment_artifact(tmp_path):
         {"Make": "FORD", "Model Year": 2023, "Range": 200},
         {"Make": "BMW", "Model Year": 2021, "Range": 250},
     ]
-    workload = generate_workload(collection)
+    workload, patterns = generate_workload(collection)
     assert Counter(entry.pattern_id for entry in workload) == dict.fromkeys(range(5), 20)
     assert all(1 <= len(entry.query.filter) <= 3 for entry in workload)
-    collection.aggregate.assert_called_once_with([{"$sample": {"size": 1000}}])
+    collection.aggregate.assert_called_once_with([{"$sample": {"size": 10000}}])
 
     prepare = MagicMock()
     prepare.load_artifact.return_value = {
@@ -33,9 +35,15 @@ def test_generation_and_experiment_artifact(tmp_path):
     client = MagicMock()
     artifact = tmp_path / "workload.jsonl"
 
-    def save(obj, filename, *, saver):
-        assert filename == artifact.name
-        saver(obj, artifact)
+    def save(obj, filename, *, saver=None):
+        if filename == "workload.jsonl":
+            saver(obj, artifact)
+        else:
+            assert filename == "patterns.jsonl"
+            restored_patterns = [
+                MongoQueryPattern.from_dict(row) for row in json.loads(json.dumps(obj))
+            ]
+            assert restored_patterns == patterns
 
     with (
         patch.object(yanex, "get_dependency", return_value=prepare) as dependency,
@@ -43,7 +51,9 @@ def test_generation_and_experiment_artifact(tmp_path):
         patch.object(yanex, "save_artifact", side_effect=save),
         patch.object(yanex, "log_metrics") as metrics,
         patch("pymongo.MongoClient", return_value=client) as connect,
-        patch("bondi_demo.workload.generate_workload", return_value=workload) as generate,
+        patch(
+            "bondi_demo.workload.generate_workload", return_value=(workload, patterns)
+        ) as generate,
     ):
         script = Path(__file__).resolve().parents[1] / "experiments/workload.py"
         runpy.run_path(str(script), run_name="__main__")

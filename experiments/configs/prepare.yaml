@@ -3,4 +3,4 @@ start_docker: true
 port: 27017
 batch_size: 1000
 # Explicitly opt in to replacing bondi_demo.electric_vehicles on subsequent runs.
-reset: false
+reset: true

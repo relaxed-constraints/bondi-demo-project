@@ -1,6 +1,11 @@
 """Generate a workload from observed values in a MongoDB collection."""
 
-from bondi.mongodb import MongoCollectionRef, MongoGenerationConfig, MongoWorkloadGenerator
+from bondi.mongodb import (
+    MongoCollectionRef,
+    MongoGenerationConfig,
+    MongoQueryPattern,
+    MongoWorkloadGenerator,
+)
 from bondi.schema import Schema
 from bondi.workload import Workload
 
@@ -12,9 +17,9 @@ def generate_workload(
     instances_per_pattern: int = 20,
     min_predicates: int = 1,
     max_predicates: int = 3,
-    sample_size: int = 1000,
+    sample_size: int = 10000,
     seed: int = 42,
-) -> Workload:
+) -> tuple[Workload, list[MongoQueryPattern]]:
     """Sample schema values and generate find queries without selectivity constraints.
 
     The seed controls generation, not MongoDB's random sample. Save the workload
@@ -35,4 +40,5 @@ def generate_workload(
         num_patterns=num_patterns,
         instances_per_pattern=instances_per_pattern,
         seed=seed,
+        return_patterns=True,
     )

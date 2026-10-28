@@ -16,20 +16,29 @@ def main():
     manifest = prepare.load_artifact("dataset_manifest.json")
     database, collection = manifest["namespace"].split(".", 1)
 
-    # Ordinary Python code does the work; Yanex supplies configuration and tracking.
+    # Generate the workload with our `generate_workload()` helper, defined in src/bondi_demo/workload.py
     started = monotonic()
     with MongoClient(manifest["uri"], serverSelectionTimeoutMS=10000) as client:
-        workload = generate_workload(client[database][collection], **yanex.get_params())
+        workload, patterns = generate_workload(client[database][collection], **yanex.get_params())
 
-    # BONDI's serializer preserves query types, options and pattern IDs.
+    for i, pattern in enumerate(patterns):
+        print(f"> Pattern {i}: {pattern}")
+
+    # We use a custom `saver` function to call the workload's `save` method
     yanex.save_artifact(workload, "workload.jsonl", saver=lambda obj, path: obj.save(path))
+
+    # For the patterns, we serialize them as a list of dictionaries and save as `.jsonl` format.
+    yanex.save_artifact([p.to_dict() for p in patterns], "patterns.jsonl")
+
+    # Finally we log some metrics
     yanex.log_metrics(
         {
             "query_count": len(workload),
+            "pattern_count": len(patterns),
             "generation_seconds": monotonic() - started,
         }
     )
-    print(f"> Saved {len(workload)} queries to workload.jsonl")
+    print(f"> Saved {len(workload)} queries (based on {len(patterns)} patterns) to workload.jsonl")
 
 
 if __name__ == "__main__":
