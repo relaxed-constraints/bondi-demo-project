@@ -1,0 +1,7 @@
+num_patterns: 5
+instances_per_pattern: 20
+min_predicates: 1
+max_predicates: 3
+# Documents sampled for schema inference and candidate filter values.
+sample_size: 1000
+seed: 42

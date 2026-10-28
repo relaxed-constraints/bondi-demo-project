@@ -48,13 +48,14 @@ Tool documentation: [pytest](https://docs.pytest.org/en/stable/getting-started.h
 
 ## Learning path
 
-Database preparation is implemented. Start with the [step-by-step walkthrough](docs/walkthrough.md).
+Database preparation and workload generation are implemented. Start with the
+[preparation walkthrough](docs/walkthrough.md), then [generate a workload](docs/workload.md).
 We will add the remaining stages incrementally:
 
 1. **Prepare the database:** start MongoDB using BONDI's deployment API, download the
    dataset, import it, and record its provenance with Yanex (`prepare_db.py`).
 2. **Generate a workload:** inspect the schema and save a random BONDI workload
-   using the preparation experiment as a Yanex dependency (`generate_workload.py`).
+   using the preparation experiment as a Yanex dependency (`workload.py`).
 3. **Benchmark index sets:** run the same workload with each supplied index set,
    using its experiment as a dependency (`benchmark.py`).
 4. **Analyse results:** compare measurements and create figures in a notebook.

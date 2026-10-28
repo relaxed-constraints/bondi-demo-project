@@ -86,10 +86,10 @@ See [MongoDB documents](https://www.mongodb.com/docs/manual/core/document/).
 uv run yanex list
 ```
 
-The run's `dataset_manifest.json` contains the dataset repository/revision, filename,
-checksum, namespace, document count, local connection URI, and deployment name/image
+The run's `dataset_manifest.json` contains the dataset repository, filename,
+namespace, document count, local connection URI, and deployment name/image
 (when managed by BONDI). Numeric metrics
-include `imported_records` and total `prepare_seconds` (including startup/download).
+include `imported_records`.
 Yanex stores these under `~/.yanex/experiments/` by default, outside this repository.
 
 ```python
@@ -104,7 +104,8 @@ The large dataset is cached, not copied into each experiment's artifacts.
 
 ## Reruns and cleanup
 
-An existing collection causes preparation to fail rather than duplicate its rows.
+The current preparation config uses `reset: true`, replacing the demo collection
+on reruns. Set `reset: false` to refuse an existing collection instead.
 To deliberately replace **only the demo collection**, including its indexes:
 
 ```sh
@@ -133,5 +134,5 @@ database to test batching, overwrite protection, count checks, and failure clean
 without Docker or downloads. Change `batch_size` in the YAML and rerun preparation
 with an explicit reset. The record count should remain unchanged.
 
-Next we will generate a workload from this collection and save it as a dependent
-Yanex experiment. That stage is not implemented yet.
+Next, [generate a workload](workload.md) from this collection and save it as a
+dependent Yanex experiment.

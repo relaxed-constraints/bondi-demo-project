@@ -22,13 +22,13 @@ def test_manifest_only_saved_after_success(fail, start_docker):
         patch.object(yanex, "is_standalone", return_value=False),
         patch.object(
             yanex,
-            "get_params",
-            return_value={
+            "get_param",
+            side_effect=lambda key, default=None: {
                 "start_docker": start_docker,
                 "port": 27019,
                 "batch_size": 1000,
                 "reset": False,
-            },
+            }.get(key, default),
         ),
         patch.object(yanex, "save_artifact") as save,
         patch.object(yanex, "log_metrics") as metrics,
@@ -49,7 +49,6 @@ def test_manifest_only_saved_after_success(fail, start_docker):
             assert filename == "dataset_manifest.json"
             assert manifest["population"] == 189010
             assert manifest["dataset_file"] == "electric_vehicles/train.jsonl"
-            assert manifest["sha256"] == data.DATASET_SHA256
             assert manifest["deployment_name"] == ("bondi-demo" if start_docker else None)
             assert manifest["deployment_image"] == ("mongo:test" if start_docker else None)
         connect.assert_called_once_with(
