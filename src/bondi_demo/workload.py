@@ -18,6 +18,7 @@ def generate_workload(
     min_predicates: int = 1,
     max_predicates: int = 3,
     sample_size: int = 10000,
+    include_fields: list[str] | None = None,
     seed: int = 42,
 ) -> tuple[Workload, list[MongoQueryPattern]]:
     """Sample schema values and generate find queries without selectivity constraints.
@@ -34,6 +35,9 @@ def generate_workload(
         config=MongoGenerationConfig(
             min_predicates=min_predicates,
             max_predicates=max_predicates,
+            include_fields=include_fields,
+            limit_probability=0.7,  # fixed for these experiments
+            sort_probability=0.5,  # fixed for these experiments
         ),
     )
     return generator.generate(

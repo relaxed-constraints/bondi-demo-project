@@ -22,6 +22,7 @@ def benchmark_workload(
     warmups: int = 1,
     repetitions: int = 3,
     timeout_seconds: float = 60,
+    verbose: bool = False,
 ) -> list[dict]:
     """Return per-query measurements, fully consuming results without retaining them.
 
@@ -37,11 +38,15 @@ def benchmark_workload(
         continue_on_error=True,
         timeout_seconds=timeout_seconds,
     ) as executor:
-        for _ in range(warmups):
+        for w in range(warmups):
+            if verbose:
+                print(f"> Executing warm-up pass {w + 1}/{warmups}")
             results = executor.run_workload(workload)
             if any(result.error is not None for result in results):
                 raise RuntimeError("Warm-up query failed; check the workload and database")
         for repetition in range(repetitions):
+            if verbose:
+                print(f"> Executing repetition {repetition + 1}/{repetitions}")
             for query_id, (entry, result) in enumerate(
                 zip(workload, executor.run_workload(workload))
             ):

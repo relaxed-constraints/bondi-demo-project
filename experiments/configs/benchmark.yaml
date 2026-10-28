@@ -1,0 +1,21 @@
+# default index set to use from below
+index_set: "baseline"
+
+# defining 3 index sets for benchmarking
+indexes:
+  baseline: []
+  single:
+    - [[City, 1]]
+    - [[Model Year, 1]]
+    - [[Make, 1]]
+    - [[State, 1]]
+    - [[Color, 1]]
+  compound:
+    - [[Make, 1], [Model Year, 1]]
+    - [[City, 1], [Color, 1], [Model Year, 1]]
+    - [[State, 1], [Color, 1]]
+    - [[Make, 1], [City, 1]]
+
+warmups: 1
+repetitions: 3 
+timeout_seconds: 60

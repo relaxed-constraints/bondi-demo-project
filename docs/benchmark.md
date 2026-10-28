@@ -5,7 +5,7 @@ Run the same saved workload with three different index sets. The question is:
 
 ## Read these files
 
-1. `experiments/configs/benchmark-*.yaml`: the three index sets and measurement settings.
+1. `experiments/configs/benchmark.yaml`: the three index sets and measurement settings.
 2. `src/bondi_demo/benchmark.py`: replace indexes and measure queries using BONDI.
 3. `experiments/benchmark.py`: load dependencies, call the helpers, and save Yanex results.
 
@@ -14,23 +14,28 @@ There is no separate runner class.
 
 ## How index sets are represented
 
-Each YAML file is a complete configuration. An index is an ordered list of
+One YAML file contains all index sets; `index_set` selects one. An index is an ordered list of
 `[field, direction]` pairs: `1` means ascending and `-1` means descending.
 
-| Configuration | Index set |
+| `index_set` | Indexes |
 | --- | --- |
-| `benchmark-none.yaml` | No secondary indexes |
-| `benchmark-single.yaml` | A: separate indexes on Make, Model Year, County, City |
-| `benchmark-compound.yaml` | B: compound indexes on (Make, Model Year) and (County, City) |
+| `baseline` | No secondary indexes |
+| `single` | Separate indexes on City, Model Year, State, Color |
+| `compound` | Compound indexes on (Make, Model Year), (City, Color), (State, Color), (Make, City) |
 
-For example, set B contains:
+For example, the baseline is represented by an empty list:
 
 ```yaml
-index_set: B
+index_set: baseline
 indexes:
-  - [[Make, 1], [Model Year, 1]]
-  - [[County, 1], [City, 1]]
+  baseline: []
+  single:
+    - [[City, 1]]
+  compound:
+    - [[Make, 1], [Model Year, 1]]
 ```
+
+This abbreviated example illustrates the format; the config file contains the full sets.
 
 Field order matters in a compound index. These are deliberately simple candidate
 sets, not recommendations tailored to the generated workload. MongoDB chooses
@@ -43,18 +48,13 @@ Use the experiment ID from [workload generation](workload.md) for **all three ru
 
 ```sh
 uv run yanex run experiments/benchmark.py \
-  -c experiments/configs/benchmark-none.yaml -D workload=<workload-id> -n no-index
-
-uv run yanex run experiments/benchmark.py \
-  -c experiments/configs/benchmark-single.yaml -D workload=<workload-id> -n single-indexes
-
-uv run yanex run experiments/benchmark.py \
-  -c experiments/configs/benchmark-compound.yaml -D workload=<workload-id> -n compound-indexes
+  -c experiments/configs/benchmark.yaml \
+  -D workload=<workload-id> -p 'index_set=baseline,single,compound'
 ```
 
-Run these sequentially. Each run **drops the collection's secondary indexes** before
+Yanex runs this sweep sequentially by default; do not add parallel execution. Each run **drops the collection's secondary indexes** before
 creating its own set, and leaves that set installed afterwards. MongoDB's required
-`_id_` index remains. The generated workload excludes `_id`, so the no-index setup
+`_id_` index remains. The generated workload excludes `_id`, so the baseline setup
 provides the collection-scan baseline. Use the dedicated demo database.
 
 The script loads `workload.jsonl` from its direct dependency. Yanex finds
@@ -100,6 +100,6 @@ Keep the three benchmark IDs for the analysis notebook we will add next.
 
 ## Bonus: index set C
 
-Copy a benchmark YAML file and change `index_set` to `C` and its `indexes` list.
+Add a `C` entry to the `indexes` dictionary and select it with `-p index_set=C`.
 Inspect the saved workload's patterns to choose fields and their order. Run against
 the same workload ID and compare your result with A and B.

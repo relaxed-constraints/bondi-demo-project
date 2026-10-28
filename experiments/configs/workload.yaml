@@ -5,3 +5,9 @@ max_predicates: 3
 # Documents sampled for schema inference and candidate filter values.
 sample_size: 10000
 seed: 42
+include_fields:
+  - City
+  - State
+  - Make
+  - Model Year
+  - Color

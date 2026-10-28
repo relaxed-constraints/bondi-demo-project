@@ -74,11 +74,11 @@ def test_experiment_saves_measurements_before_reporting(workload, failed):
             yanex,
             "get_params",
             return_value={
-                "indexes": [],
+                "indexes": {"baseline": []},
                 "warmups": 0,
                 "repetitions": 1,
                 "timeout_seconds": 60,
-                "index_set": "none",
+                "index_set": "baseline",
             },
         ),
         patch.object(yanex, "save_artifact") as save,
