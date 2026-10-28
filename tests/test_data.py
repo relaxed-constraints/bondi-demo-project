@@ -81,16 +81,3 @@ def test_download_uses_pinned_revision(records):
             assert data.download_dataset() == records
     assert download.call_args.kwargs["revision"] == data.DATASET_REVISION
     assert download.call_args.kwargs["filename"].endswith("train.jsonl")
-
-
-def test_docker_waits_for_mongodb_only(tmp_path):
-    response = MagicMock()
-    response.__enter__.return_value.read.return_value = b"services: {}\n"
-    with patch.object(data, "urlopen", return_value=response):
-        with patch.object(data.subprocess, "run") as run:
-            data.start_database(tmp_path / "compose.yaml")
-    command = run.call_args.args[0]
-    assert "--wait" in command
-    assert command[-1] == "mongodb"
-    assert "down" not in command
-    assert run.call_args.kwargs["check"] is True

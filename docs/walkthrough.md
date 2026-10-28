@@ -13,7 +13,8 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and
 on Linux). Start Docker, then run `uv sync --locked` from this repository root.
 Select this project's `.venv` as your editor's Python interpreter.
 
-MongoDB binds to localhost port 27017. An existing BONDI MongoDB container is reused.
+MongoDB binds to localhost port 27017. BONDI creates or reuses a deployment named
+`bondi-demo`. Set `port` in the YAML to use another port for a new deployment.
 If another MongoDB installation occupies that port, resolve the conflict first;
 do not stop an unfamiliar database. `start_docker=false` lets you explicitly use
 an already running local MongoDB instead.
@@ -21,8 +22,9 @@ an already running local MongoDB instead.
 ## Read these three files
 
 1. `experiments/configs/prepare.yaml`: the few settings you can change.
-2. `src/bondi_demo/data.py`: downloads, Docker startup, and batched import.
-3. `experiments/prepare_db.py`: reads settings, calls those functions, and saves results.
+2. `src/bondi_demo/data.py`: dataset download and batched import.
+3. `experiments/prepare_db.py`: deploys MongoDB through BONDI, calls the data functions,
+   and saves results.
 
 `uv sync` installs `bondi_demo` editably: changes under `src/` are immediately
 available to scripts, notebooks, and tests. No `sys.path` changes are needed.
@@ -33,9 +35,11 @@ available to scripts, notebooks, and tests. No `sys.path` changes are needed.
 uv run yanex run experiments/prepare_db.py -c experiments/configs/prepare.yaml -n prepare-ev
 ```
 
-The script fetches BONDI's Compose file from a pinned source revision into ignored
-`data/compose.yaml`, starts only its MongoDB service, and waits for readiness.
-The first run also downloads the MongoDB image.
+The script calls `deploy_mongodb("bondi-demo", port=params["port"])` from
+`bondi.deployment`. BONDI supplies its packaged Docker configuration and waits for
+MongoDB to be ready. The returned deployment provides the connection URI.
+The first run also downloads the MongoDB image. See the
+[BONDI deployment guide](https://relaxed-constraints.github.io/bondi/deployment/).
 
 It downloads only `electric_vehicles/train.jsonl` from
 [origami-ml/jsynth-data](https://huggingface.co/datasets/origami-ml/jsynth-data), pinned
@@ -83,7 +87,8 @@ uv run yanex list
 ```
 
 The run's `dataset_manifest.json` contains the dataset repository/revision, filename,
-checksum, namespace, document count, and local connection URI. Numeric metrics
+checksum, namespace, document count, local connection URI, and deployment name/image
+(when managed by BONDI). Numeric metrics
 include `imported_records` and total `prepare_seconds` (including startup/download).
 Yanex stores these under `~/.yanex/experiments/` by default, outside this repository.
 
@@ -114,10 +119,12 @@ if the replacement fails.
 MongoDB stays running for the following steps. To stop it without deleting data:
 
 ```sh
-docker compose -f data/compose.yaml stop mongodb
+uv run bondi stop bondi-demo
 ```
 
-This also stops MongoDB for other projects using the shared BONDI container.
+Restart it with `uv run bondi start bondi-demo`. To remove the deployment and its
+data, run `uv run bondi remove bondi-demo` and confirm the prompt. These commands
+apply only when preparation used `start_docker=true`.
 
 ## Exercise: follow the separation of concerns
 

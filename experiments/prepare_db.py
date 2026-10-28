@@ -1,9 +1,9 @@
 """Yanex orchestration: configuration → reusable functions → tracked artifacts."""
 
-from pathlib import Path
 from time import monotonic
 
 import yanex
+from bondi.deployment import deploy_mongodb
 from pymongo import MongoClient
 
 from bondi_demo import data
@@ -17,15 +17,15 @@ def main():
     params = yanex.get_params()
     started = monotonic()
 
-    # Keep generated Docker assets out of Git; paths do not depend on shell cwd.
-    project = Path(__file__).resolve().parents[1]
-    compose_path = project / "data" / "compose.yaml"
+    # BONDI owns Docker setup and readiness; keep it running for later experiments.
+    uri = f"mongodb://127.0.0.1:{params['port']}/"
+    deployment = None
     if params["start_docker"]:
-        data.start_database(compose_path)
+        deployment = deploy_mongodb("bondi-demo", port=params["port"])
+        uri = deployment.uri
 
     # Download/check before replacing any existing collection.
     path = data.download_dataset()
-    uri = "mongodb://127.0.0.1:27017/"
     with MongoClient(uri, serverSelectionTimeoutMS=10000) as client:
         client.admin.command("ping")
         count = data.import_dataset(
@@ -44,7 +44,8 @@ def main():
         "namespace": f"{data.DATABASE}.{data.COLLECTION}",
         "population": count,
         "uri": uri,
-        "bondi_compose_revision": data.BONDI_REVISION if params["start_docker"] else None,
+        "deployment_name": deployment.name if deployment else None,
+        "deployment_image": deployment.image if deployment else None,
     }
     yanex.save_artifact(manifest, "dataset_manifest.json")
     yanex.log_metrics({"imported_records": count, "prepare_seconds": monotonic() - started})

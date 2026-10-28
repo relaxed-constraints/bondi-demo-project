@@ -19,6 +19,10 @@ uv sync --locked
 
 uv installs the selected Python version if needed and creates a `.venv` containing
 BONDI, Yanex, pytest, and Ruff. `uv.lock` records the exact dependency versions.
+During development, BONDI is installed from the editable sibling checkout
+`../bondi`; this provides the deployment API, which is not released on PyPI yet.
+Keep that checkout alongside this repository when running `uv sync`.
+
 Use `uv run` to run commands in this environment; activation is not necessary.
 In VS Code, select `.venv/bin/python` as your Python interpreter
 (`.venv\Scripts\python.exe` on Windows).
@@ -47,7 +51,7 @@ Tool documentation: [pytest](https://docs.pytest.org/en/stable/getting-started.h
 Database preparation is implemented. Start with the [step-by-step walkthrough](docs/walkthrough.md).
 We will add the remaining stages incrementally:
 
-1. **Prepare the database:** start MongoDB using BONDI's Docker setup, download the
+1. **Prepare the database:** start MongoDB using BONDI's deployment API, download the
    dataset, import it, and record its provenance with Yanex (`prepare_db.py`).
 2. **Generate a workload:** inspect the schema and save a random BONDI workload
    using the preparation experiment as a Yanex dependency (`generate_workload.py`).
@@ -65,7 +69,7 @@ We will use only `electric_vehicles/train.jsonl` from
 [origami-ml/jsynth-data](https://huggingface.co/datasets/origami-ml/jsynth-data):
 **189,010 records**, approximately **80.8 MB**. The test split is not used.
 
-The planned download is pinned to revision
+The download is pinned to revision
 `9af20c2698454dd33403c993501f5e1c0007643a` for reproducibility.
 Downloaded data and generated results stay out of Git.
 

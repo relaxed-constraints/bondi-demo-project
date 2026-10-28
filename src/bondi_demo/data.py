@@ -6,9 +6,7 @@ call them directly. Importing data is intentionally separate from downloading it
 
 import hashlib
 import json
-import subprocess
 from pathlib import Path
-from urllib.request import urlopen
 
 from huggingface_hub import hf_hub_download
 
@@ -17,10 +15,6 @@ DATASET_REVISION = "9af20c2698454dd33403c993501f5e1c0007643a"
 DATASET_FILE = "electric_vehicles/train.jsonl"
 DATASET_SHA256 = "1e3d4375f4a8a9a37abbf083ff4a9fe83b1974ad283d74051cc4e589dc610ea5"
 EXPECTED_RECORDS = 189010
-BONDI_REVISION = "10867d774f3837f0ab33395b5b89eb85645d54e0"
-COMPOSE_URL = (
-    f"https://raw.githubusercontent.com/relaxed-constraints/bondi/{BONDI_REVISION}/compose.yaml"
-)
 DATABASE = "bondi_demo"
 COLLECTION = "electric_vehicles"
 
@@ -44,34 +38,6 @@ def download_dataset() -> Path:
     if file_sha256(path) != DATASET_SHA256:
         raise ValueError("Dataset checksum does not match the pinned training file")
     return path
-
-
-def start_database(compose_path: Path) -> None:
-    """Fetch BONDI's pinned Compose file and start its MongoDB service.
-
-    Requires Docker with Compose v2. Uses BONDI's existing project/volume on
-    localhost:27017; does not start Couchbase or remove any database volumes.
-    """
-    compose_path.parent.mkdir(parents=True, exist_ok=True)
-    with urlopen(COMPOSE_URL, timeout=30) as response:
-        compose_path.write_bytes(response.read())
-    subprocess.run(
-        [
-            "docker",
-            "compose",
-            "-f",
-            str(compose_path),
-            "--profile",
-            "mongodb",
-            "up",
-            "-d",
-            "--wait",
-            "--wait-timeout",
-            "120",
-            "mongodb",
-        ],
-        check=True,
-    )
 
 
 def import_dataset(
