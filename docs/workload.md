@@ -24,7 +24,7 @@ from that experiment to find the connection URI and collection namespace. The
 prepared database must still be running; use `uv run bondi start bondi-demo` if you
 stopped it. Dependencies record lineage; they do not rerun preparation.
 
-The reusable function uses MongoDB's `$sample` to fetch 1,000 documents and BONDI's
+The reusable function uses MongoDB's `$sample` to fetch 10,000 documents and BONDI's
 schema parser to collect their distinct field values. The generator creates **5
 patterns with 20 instances each**, giving **100 queries**. A pattern fixes the fields,
 operators and query options; its instances vary the filter values. Each query has
