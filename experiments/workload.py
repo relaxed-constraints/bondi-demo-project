@@ -9,10 +9,11 @@ from bondi_demo.workload import generate_workload
 
 
 def main():
-    # The named dependency supplies the database location, not a new database copy.
+    # Here we fail fast if the experiment does not have the required prepare_db.py dependency
     yanex.assert_dependency("prepare_db.py", "prepare")
-    prepare = yanex.get_dependency("prepare")
-    manifest = prepare.load_artifact("dataset_manifest.json")
+
+    # Load the dataset manifest from the preparation experiment
+    manifest = yanex.load_artifact("dataset_manifest.json")
     database, collection = manifest["namespace"].split(".", 1)
 
     # Generate the workload with our `generate_workload()` helper, defined in src/bondi_demo/workload.py

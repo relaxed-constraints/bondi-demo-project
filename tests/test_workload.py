@@ -27,8 +27,7 @@ def test_generation_and_experiment_artifact(tmp_path):
     assert all(1 <= len(entry.query.filter) <= 3 for entry in workload)
     collection.aggregate.assert_called_once_with([{"$sample": {"size": 10000}}])
 
-    prepare = MagicMock()
-    prepare.load_artifact.return_value = {
+    manifest = {
         "uri": "mongodb://localhost:27019/",
         "namespace": "bondi_demo.electric_vehicles",
     }
@@ -46,7 +45,7 @@ def test_generation_and_experiment_artifact(tmp_path):
             assert restored_patterns == patterns
 
     with (
-        patch.object(yanex, "get_dependency", return_value=prepare) as dependency,
+        patch.object(yanex, "load_artifact", return_value=manifest) as load_artifact,
         patch.object(yanex, "get_params", return_value={"seed": 42}),
         patch.object(yanex, "save_artifact", side_effect=save),
         patch.object(yanex, "log_metrics") as metrics,
@@ -58,8 +57,7 @@ def test_generation_and_experiment_artifact(tmp_path):
         script = Path(__file__).resolve().parents[1] / "experiments/workload.py"
         runpy.run_path(str(script), run_name="__main__")
 
-    dependency.assert_called_once_with("prepare")
-    prepare.load_artifact.assert_called_once_with("dataset_manifest.json")
+    load_artifact.assert_called_once_with("dataset_manifest.json")
     connect.assert_called_once_with("mongodb://localhost:27019/", serverSelectionTimeoutMS=10000)
     generate.assert_called_once_with(
         client.__enter__.return_value["bondi_demo"]["electric_vehicles"],

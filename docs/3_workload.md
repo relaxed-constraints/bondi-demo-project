@@ -1,25 +1,34 @@
-# Step 2: generate a workload
+# Step 3: generate a workload
 
 A workload is a collection of queries we will run against each index set. Using the
 same saved queries makes those benchmarks comparable.
 
 ## Read these files
 
-1. `src/bondi_demo/workload.py`: samples documents, infers a schema, and generates queries.
-2. `experiments/configs/workload.yaml`: pattern counts, predicate counts, sample size and seed.
-3. `experiments/workload.py`: loads the preparation dependency and saves the result with Yanex.
+1. [src/bondi_demo/workload.py](../src/bondi_demo/workload.py): samples documents, infers a schema, and generates queries.
+2. [experiments/workload.py](../experiments/workload.py): loads the preparation dependency and saves the result with Yanex.
+3. [experiments/configs/workload.yaml](../experiments/configs/workload.yaml): pattern counts, predicate counts, sample size and seed.
 
 ## Run the experiment
 
-Complete [database preparation](walkthrough.md) first, then pass its experiment ID:
+Complete [database preparation](2_preparation.md) first, then pass its experiment ID. You can retrieve it by listing the latest experiments with `yanex list`.
 
 ```sh
-uv run yanex run experiments/workload.py \
-  -c experiments/configs/workload.yaml \
-  -D prepare=<prepare-experiment-id> -n workload-ev
+yanex run workload.py \
+  -c configs/workload.yaml \
+  -D prepare=<prepare-experiment-id> \
+  --name "2-workload"
 ```
 
-`-D prepare=...` names a Yanex dependency. The script reads `dataset_manifest.json`
+`-D prepare=...` names a Yanex dependency. It assigns the experiment with ID `<prepare-experiment-id>` to the `prepare` slot. 
+
+The script uses a guard that ensures an experiment running `prepare_db.py` is available as the `prepare` dependency in the `prepare` slot before proceeding:
+
+```python
+yanex.assert_dependency("prepare_db.py", "prepare")
+```
+
+The script reads `dataset_manifest.json`
 from that experiment to find the connection URI and collection namespace. The
 prepared database must still be running; use `uv run bondi start bondi-demo` if you
 stopped it. Dependencies record lineage; they do not rerun preparation.
@@ -60,17 +69,20 @@ restore those rows with `MongoQueryPattern.from_dict()`. Their list positions ma
 the workload pattern IDs. Metrics include `query_count`, `pattern_count` and
 `generation_seconds`.
 
-## Try a small change
+## Exercises
 
-Override a parameter without editing the YAML:
+### 1. Changing parameters from the command line
+Override a parameter without editing the YAML, using `max_predicates=1` on the command line when you run the experiment.
 
-```sh
-uv run yanex run experiments/workload.py \
-  -c experiments/configs/workload.yaml \
-  -D prepare=<prepare-experiment-id> -p max_predicates=2
-```
+Then inspect the generated queries directly by opening `workload.jsonl`. A quick shortcut to find the file is to use `yanex open <id>`. 
 
-Run `uv run pytest` and read `tests/test_workload.py`: it generates real BONDI queries
-from a tiny sample and checks the saved artifact without requiring MongoDB.
+### 2. Inspect the generated patterns
 
-Next, [benchmark the saved workload](benchmark.md) against the supplied index sets.
+In a notebook, load the `patterns.jsonl` artifact and parse
+the patterns back into `MongoQueryPattern` objects, then print
+them. What do their printed representations look like? 
+
+
+## Next
+
+[Benchmark the saved workload](4_benchmark.md) against the supplied index sets.

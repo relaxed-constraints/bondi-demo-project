@@ -10,13 +10,19 @@ from bondi_demo.benchmark import apply_indexes, benchmark_workload
 
 
 def main():
-    # Load queries directly, and database details through the preparation ancestor.
+    # Here we fail fast if the experiment does not have the required workload dependency
     yanex.assert_dependency("workload.py", "workload")
-    dependency = yanex.get_dependency("workload")
 
-    workload = dependency.load_artifact("workload.jsonl", loader=Workload.load)
-    manifest = yanex.load_artifact("dataset_manifest.json")
+    # Next we load the workload and dataset manifest
+    # Yanex will search through the dependency chain for the required artifacts
+    workload = yanex.load_artifact("workload.jsonl", loader=Workload.load)
+    manifest = yanex.load_artifact(
+        "dataset_manifest.json"
+    )  # loaded from the prepare_db.py experiment
+
     database, collection = manifest["namespace"].split(".", 1)
+
+    # Load the parameters from the config file
     params = yanex.get_params()
 
     # Ensure an index set was provided
@@ -26,7 +32,6 @@ def main():
         )
 
     # Get correct index set from config based on `index_set` parameter
-    # String `baseline` in yaml maps to None, replacing with string "none" here
     indexes = params["indexes"][params["index_set"]]
 
     # Index creation is setup, not part of the measured query execution time.
@@ -49,15 +54,18 @@ def main():
     yanex.save_artifact(rows, "query_results.jsonl")
     if any(row["status"] != "success" for row in rows):
         raise RuntimeError("Some queries failed; inspect query_results.jsonl")
+
     totals = [
         sum(row["elapsed_ms"] for row in rows if row["repetition"] == repetition)
         for repetition in range(params["repetitions"])
     ]
-    yanex.save_artifact(totals, "workload_times.json")
+
+    # log metrics for the workload
     yanex.log_metrics(
         {
             "query_count": len(workload),
-            "median_workload_ms": median(totals),
+            "workloads_ms": totals,  # list of workload times for each repetition
+            "median_workload_ms": median(totals),  # median of workload times
         }
     )
     print(f"> {params['index_set']}: median workload time {median(totals):,.1f} ms")

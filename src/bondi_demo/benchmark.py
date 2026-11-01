@@ -47,9 +47,9 @@ def benchmark_workload(
         for repetition in range(repetitions):
             if verbose:
                 print(f"> Executing repetition {repetition + 1}/{repetitions}")
-            for query_id, (entry, result) in enumerate(
-                zip(workload, executor.run_workload(workload))
-            ):
+
+            results = executor.run_workload(workload)
+            for query_id, (entry, result) in enumerate(zip(workload, results)):
                 rows.append(
                     {
                         "repetition": repetition,
