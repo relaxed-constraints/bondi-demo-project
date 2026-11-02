@@ -1,13 +1,21 @@
 # BONDI demo project
 
-A small starting point for learning how to run reproducible MongoDB experiments
-with [BONDI](https://relaxed-constraints.github.io/bondi/) and
-[Yanex](https://github.com/rueckstiess/yanex). Additionally, we will use `uv` 
-as the Python project management tool and Docker to deploy a MongoDB instance locally.
+This repo provides a demo project using the BONDI toolkit for MongoDB research as
+a starting point and tutorial. 
+
+It builds on the following dependencies and tools:
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) a Python project management tool
+- [Docker](https://docs.docker.com/get-started/) a platform for containerized applications
+- [BONDI](https://relaxed-constraints.github.io/bondi/) a document database research toolkit
+- [Yanex](https://github.com/rueckstiess/yanex) a tool for managing experiments and tracking results
+- [Jupyter Notebooks](https://jupyter.org/) an interactive environment for running and visualizing experiments
+- [pandas](https://pandas.pydata.org/) a tabular data analysis library for Python
+- [Matplotlib](https://matplotlib.org/) a plotting library for Python
+- [MARP](https://marp.app) (optional) a tool for rendering Markdown into slides
 
 <details>
   <summary><b>What is all this stuff?</b></summary>
-  
+
 #### uv
 
 If you're unfamiliar with `uv`, it's worth spending some time to understand its
@@ -27,15 +35,6 @@ services, like databases locally for development and experimentation.
 
 Read more in the [official Docker documentation](https://docs.docker.com/get-started/).
 
-#### Yanex
-
-Yanex is a generic tool for managing experiments and tracking and analysing their results. 
-It allows you to run scripts with specific configurations, record the outputs, and maintain
-a history of experiments. This is particularly useful for reproducibility and for 
-understanding the impact of different parameters on your results. 
-
-Yanex' documentation can be found on the [Yanex github page](https://github.com/rueckstiess/yanex).
-
 #### BONDI
 
 BONDI is a tooklkit for conducting research with document databases, with a focus on MongoDB. 
@@ -46,9 +45,44 @@ This repo is an example project demonstrating how to use BONDI for research with
 including dataset preparation, database deployment, and experiment tracking.
 
 More info and the full documentation can be found on the [BONDI documentation site](https://relaxed-constraints.github.io/bondi/).
-  
+
+#### Yanex
+
+Yanex is a generic tool for managing experiments and tracking and analysing their results. 
+It allows you to run scripts with specific configurations, record the outputs, and maintain
+a history of experiments. This is particularly useful for reproducibility and for 
+understanding the impact of different parameters on your results. 
+
+Yanex' documentation can be found on the [Yanex github page](https://github.com/rueckstiess/yanex).
+
+#### Jupyter Notebooks
+
+Jupyter notebooks combine executable code, explanations and plots in one document.
+We use them to explore saved experiment results interactively. Open the notebooks
+in VS Code with its Jupyter extension and select this project's Python environment
+as the kernel that runs the code.
+
+#### pandas
+
+pandas provides DataFrames: tables that you can filter, group and summarise in
+Python. In this project, we use them to organise query measurements, compare index
+sets and calculate statistics such as median execution times and speedups.
+
+#### Matplotlib
+
+Matplotlib creates plots from Python data. We use it with pandas to turn benchmark
+results into charts for analysis and progress updates.
+
+#### Marp (optional)
+
+Marp renders Markdown files as slide decks. We use it to write simple progress
+updates with text, tables, equations and images. The Marp for VS Code extension
+provides a slide preview and export commands. Start with the example deck in
+[results/week-1/presentation.md](results/week-1/presentation.md).
+
 </details>
-<br/>
+
+### What it does
 
 We will first deploy a local MongoDB instance, then download and insert a dataset of electric vehicle
 registrations. Then we generate a random query workload based on this dataset. Next, we will evaluate
@@ -61,13 +95,39 @@ executing this workload under 3 different index sets:
 We want to benchmark how different indexing strategies affect the performance of query execution. 
 Finally, we look at the results in a Jupyter notebook to compare the performance of different indexing strategies.
 
+The goal is to walk you through an end-to-end example of conducting reproducible experiments, analysing the 
+results and providing progress updates to your supervisors. While your project may differ in scope and specifics, the workflow demonstrated here can serve as a template for conducting structured and reproducible research. 
+
+
+## Repository Structure
+
+| Directory | Purpose |
+| --- | --- |
+| `docs/` | Step-by-step guides to the dataset, preparation, workload generation, benchmarking and analysis. |
+| `experiments/` | Yanex experiment scripts that connect the reusable helpers and record parameters, metrics and artifacts. |
+| `experiments/configs/` | YAML configuration files for dataset preparation, workload generation and benchmark index sets. |
+| `notebooks/` | Jupyter notebooks for interactive exploration and analysis of saved experiment results. |
+| `results/` | Progress-update slides and supporting figures, organised by update, such as `week-1/`. Yanex stores experiment artifacts separately. |
+| `src/bondi_demo/` | Reusable Python helpers for downloading and importing data, generating workloads and benchmarking queries. |
+| `tests/` | Automated tests for the helpers, experiment scripts and basic project setup. |
+
 ## Setup
 
 ### 1. Install Docker
 
 Follow the instructions for your platform on the [Docker website](https://docs.docker.com/get-docker/). After installation, start the Docker daemon to ensure it is running before proceeding with the experiments.
 
-### 2. Set up Python virtual environment and install dependencies
+### 2. Clone this repository
+
+Run the following command to clone the project repository to your local machine:
+
+```sh
+git clone https://github.com/relaxed-constraints/bondi-demo-project.git
+cd bondi-demo-project
+```
+
+
+### 3. Set up Python virtual environment and install dependencies
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run
 this command from the project directory:
@@ -79,7 +139,7 @@ uv sync --locked
 uv installs the selected Python version if needed and creates a `.venv` containing
 all the dependencies. `uv.lock` records the exact dependency versions.
 
-### 3. Check your setup
+### 4. Check your setup
  
 First, from the project directory, activate your virtual environment that `uv` created:
 
