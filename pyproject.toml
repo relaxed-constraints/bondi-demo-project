@@ -1,7 +1,8 @@
 [project]
 name = "bondi-demo-project"
+authors = [{ name = "Thomas Rueckstiess", email = "thomas@relcon.ai" }]
 version = "0.1.0"
-description = "A student starting point for reproducible document database experiments"
+description = "A starting point for reproducible document database experiments with BONDI"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
