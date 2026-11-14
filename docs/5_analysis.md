@@ -4,7 +4,7 @@ Analyse the benchmark results interactively in a Jupyter notebook, using the Yan
 
 ## Read this file
 
-- [notebooks/explore_results.ipynb](../notebooks/explore_results.ipynb): the Jupyter notebook for interactive analysis of benchmark results.
+- [notebooks/explore_results.ipynb](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/notebooks/explore_results.ipynb): the Jupyter notebook for interactive analysis of benchmark results.
 
 
 Open the notebook in VS Code with its Jupyter extension.

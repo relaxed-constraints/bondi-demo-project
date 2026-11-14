@@ -5,9 +5,9 @@ Run the same saved workload with three different index sets. The question is:
 
 ## Read these files
 
-1. [src/bondi_demo/benchmark.py](../src/bondi_demo/benchmark.py): replace indexes and measure queries using BONDI.
-2. [experiments/benchmark.py](../experiments/benchmark.py): load dependencies, call the helpers, and save Yanex results.
-3. [experiments/configs/benchmark.yaml](../experiments/configs/benchmark.yaml): the three index sets and measurement settings.
+1. [src/bondi_demo/benchmark.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/src/bondi_demo/benchmark.py): replace indexes and measure queries using BONDI.
+2. [experiments/benchmark.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/benchmark.py): load dependencies, call the helpers, and save Yanex results.
+3. [experiments/configs/benchmark.yaml](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/configs/benchmark.yaml): the three index sets and measurement settings.
 
 
 The helpers are ordinary Python functions you can also call from tests or notebooks.

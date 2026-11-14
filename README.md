@@ -1,5 +1,11 @@
 # BONDI demo project
 
+## Documentation
+
+The repository includes a ready-to-use Zensical site. See
+[Installation](docs/installation.md) and [Documentation setup](docs/documentation.md).
+Run `zensical serve` from an activated project environment to preview it.
+
 This repo provides a demo project using the BONDI toolkit for MongoDB research as
 a starting point and tutorial. 
 

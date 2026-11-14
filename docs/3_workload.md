@@ -5,9 +5,9 @@ same saved queries makes those benchmarks comparable.
 
 ## Read these files
 
-1. [src/bondi_demo/workload.py](../src/bondi_demo/workload.py): samples documents, infers a schema, and generates queries.
-2. [experiments/workload.py](../experiments/workload.py): loads the preparation dependency and saves the result with Yanex.
-3. [experiments/configs/workload.yaml](../experiments/configs/workload.yaml): pattern counts, predicate counts, sample size and seed.
+1. [src/bondi_demo/workload.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/src/bondi_demo/workload.py): samples documents, infers a schema, and generates queries.
+2. [experiments/workload.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/workload.py): loads the preparation dependency and saves the result with Yanex.
+3. [experiments/configs/workload.yaml](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/configs/workload.yaml): pattern counts, predicate counts, sample size and seed.
 
 ## Run the experiment
 
@@ -30,7 +30,7 @@ yanex.assert_dependency("prepare_db.py", "prepare")
 
 The script reads `dataset_manifest.json`
 from that experiment to find the connection URI and collection namespace. The
-prepared database must still be running; use `uv run bondi start bondi-demo` if you
+prepared database must still be running; use `bondi deployment start bondi-demo` if you
 stopped it. Dependencies record lineage; they do not rerun preparation.
 
 The reusable function uses MongoDB's `$sample` to fetch 10,000 documents and BONDI's

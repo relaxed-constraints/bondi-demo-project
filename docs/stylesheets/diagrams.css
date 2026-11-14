@@ -1,0 +1,17 @@
+/* Custom properties inherit into Zensical's Mermaid shadow roots. */
+:root,
+[data-md-color-scheme="default"] {
+  --jb-frame-bg: #f3f5f8;
+  --jb-frame-border: #66758a;
+  --jb-node-bg: #e7eef7;
+  --jb-node-border: #7893b7;
+  --jb-diagram-text: #24354b;
+}
+
+[data-md-color-scheme="slate"] {
+  --jb-frame-bg: #252d3b;
+  --jb-frame-border: #8393aa;
+  --jb-node-bg: #33445d;
+  --jb-node-border: #8caacf;
+  --jb-diagram-text: #edf2fa;
+}

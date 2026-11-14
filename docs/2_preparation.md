@@ -7,14 +7,14 @@ dataset](./1_general.md#dataset) into it.
 
 ## Before starting
 
-Make sure you have installed Docker and have gone through the Python environment setup for this project, as described in the [README](../README.md#setup).
+Make sure you have installed Docker and have gone through the Python environment setup for this project, as described in the [README](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/README.md#setup).
 
 ## Read these three files
 
-1. [src/bondi_demo/data.py](../src/bondi_demo/data.py): data download and batched import utilities. The actual logic for handling the dataset resides here.
-2. [experiments/prepare_db.py](../experiments/prepare_db.py): experiment script to deploy MongoDB, calls the data functions,
+1. [src/bondi_demo/data.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/src/bondi_demo/data.py): data download and batched import utilities. The actual logic for handling the dataset resides here.
+2. [experiments/prepare_db.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/prepare_db.py): experiment script to deploy MongoDB, calls the data functions,
    and logs some results.
-3. [experiments/configs/prepare.yaml](../experiments/configs/prepare.yaml): the few settings you can change.
+3. [experiments/configs/prepare.yaml](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/configs/prepare.yaml): the few settings you can change.
 
 
 ### 1. Data helper functions
