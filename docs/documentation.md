@@ -4,7 +4,7 @@ The site uses Zensical's modern theme with light and dark palettes, code-copy
 buttons, tabs, callouts, Mermaid diagrams and a Python API reference.
 Shared defaults and copy-button styling come from
 [relcon-docs](https://github.com/relaxed-constraints/relcon-docs), installed through
-the `docs` dependency group at a pinned Git commit. No sibling checkout is needed.
+the `docs` dependency group from PyPI. No sibling checkout is needed.
 Project-specific configuration lives in `mkdocs.yml`, including navigation,
 Mermaid support and API headings.
 
@@ -21,7 +21,7 @@ source .venv/bin/activate
 ```
 
 With pip, use `python -m pip install --group docs` in the active environment.
-Git is required to install the pinned dependency. Then run:
+Then run:
 
 ```sh
 zensical serve
@@ -123,7 +123,7 @@ customizations in `mkdocs.yml` or a separate stylesheet. YAML mappings merge;
 lists replace inherited lists. The shared stylesheet includes diagram colours;
 no local `extra_css` override is required.
 
-To upgrade, update the relcon-docs commit in `pyproject.toml`, run `uv lock`
+To upgrade, update the relcon-docs version in `pyproject.toml`, run `uv lock`
 and `uv sync --locked --group docs`, then review and apply:
 
 ```sh
@@ -174,3 +174,6 @@ math configuration and managed `docs/javascripts/relcon-docs-math.js` loader.
 The loader fetches MathJax from jsDelivr only on pages containing equations.
 The shared stylesheet also supplies dark-mode copy controls and diagram accent
 colours; see the [shared feature examples](https://relaxed-constraints.github.io/relcon-docs/).
+
+Heading permalinks are inherited from relcon-docs. Hover over a heading to reveal
+the ¶ link to that section.

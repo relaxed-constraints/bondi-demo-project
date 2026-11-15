@@ -24,7 +24,7 @@ packages = ["src/bondi_demo"]
 
 [dependency-groups]
 dev = ["pytest>=8,<9", "ruff>=0.9,<1"]
-docs = ["relcon-docs @ git+https://github.com/relaxed-constraints/relcon-docs.git@7a65409737b9e17086232b87ac95160ae58b2199"]
+docs = ["relcon-docs==0.1.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
