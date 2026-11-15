@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Update relcon-docs to inherit alphabetical API members and exclude private members.
+
 - Adopt pinned relcon-docs defaults, assets and reusable deployment workflow;
   preserve tutorial navigation and remove duplicate theme configuration and CSS.
 
