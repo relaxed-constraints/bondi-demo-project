@@ -38,9 +38,10 @@ jobs:
         with:
           version: "0.13.6"
           python-version: "3.11"
-      - run: uv sync --locked
+      - run: uv sync --locked --group docs
       - run: uv run ruff check .
       - run: uv run ruff format --check .
+      - run: uv run relcon-docs configure --check
       - run: uv run zensical build --strict
       - run: uv build --out-dir release-dist
       - run: uvx --from twine twine check --strict release-dist/*

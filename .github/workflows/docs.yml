@@ -1,0 +1,18 @@
+# Project-owned deployment policy: consumer projects publish from main.
+name: Documentation
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+  docs:
+    needs: checks
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: relaxed-constraints/relcon-docs/.github/workflows/deploy-docs.yml@ea4aa3ded66f09a8963a5f12655f9e601e286400

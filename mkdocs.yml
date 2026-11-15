@@ -1,0 +1,34 @@
+# Project-owned settings override shared relcon-docs defaults.
+INHERIT: .relcon-docs/base.yml
+site_name: BONDI Demo Project
+site_description: A starter for reproducible database research with BONDI and Yanex
+site_url: https://relaxed-constraints.github.io/bondi-demo-project/
+repo_url: https://github.com/relaxed-constraints/bondi-demo-project
+repo_name: relaxed-constraints/bondi-demo-project
+copyright: Copyright &copy; 2026 Relaxed Constraints
+nav:
+- Home: index.md
+- Getting started:
+  - Installation: installation.md
+  - Quickstart: quickstart.md
+- User guide: user-guide.md
+- Tutorials:
+  - Overview: 1_general.md
+  - Prepare data: 2_preparation.md
+  - Generate workloads: 3_workload.md
+  - Benchmark indexes: 4_benchmark.md
+  - Analyse results: 5_analysis.md
+- Reference: reference.md
+- Results: results.md
+- Development:
+  - Contributing: development.md
+  - Documentation: documentation.md
+plugins:
+  mkdocstrings:
+    handlers:
+      python:
+        paths:
+        - src
+        options:
+          show_root_heading: true
+          heading_level: 2

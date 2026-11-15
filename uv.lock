@@ -283,17 +283,18 @@ dependencies = [
     { name = "huggingface-hub" },
     { name = "ipykernel" },
     { name = "matplotlib" },
-    { name = "mkdocstrings-python" },
     { name = "pandas" },
     { name = "pymongo" },
     { name = "yanex" },
-    { name = "zensical" },
 ]
 
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
     { name = "ruff" },
+]
+docs = [
+    { name = "relcon-docs" },
 ]
 
 [package.metadata]
@@ -302,11 +303,9 @@ requires-dist = [
     { name = "huggingface-hub", specifier = ">=0.30,<2" },
     { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "matplotlib", specifier = ">=3.11.2" },
-    { name = "mkdocstrings-python", specifier = ">=2.0.10" },
     { name = "pandas", specifier = ">=3.1.0" },
     { name = "pymongo", specifier = ">=4.13,<5" },
     { name = "yanex", specifier = "==0.7.0" },
-    { name = "zensical", specifier = ">=0.1.1,<0.2" },
 ]
 
 [package.metadata.requires-dev]
@@ -314,6 +313,7 @@ dev = [
     { name = "pytest", specifier = ">=8,<9" },
     { name = "ruff", specifier = ">=0.9,<1" },
 ]
+docs = [{ name = "relcon-docs", git = "https://github.com/relaxed-constraints/relcon-docs.git?rev=ea4aa3ded66f09a8963a5f12655f9e601e286400" }]
 
 [[package]]
 name = "certifi"
@@ -3415,6 +3415,17 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/63/0b/83aab3b5b739947f744135a7a3a446e25433ebc92b05e01aae197ccbfdda/regex-2026.9.29-cp315-cp315t-win32.whl", hash = "sha256:c4e38dd8f39c43a91d2410ad2b85610701b0979342c3df1d69eaf8e838c757d8", size = 276964 },
     { url = "https://files.pythonhosted.org/packages/72/f2/6314b5fc68789b5dcc38885bc6e3d6986b34fb3372b7231088ee5cecaa05/regex-2026.9.29-cp315-cp315t-win_amd64.whl", hash = "sha256:e2c89e9b762c57f59d5e99ee8b20202adb892e35f8d3485741340999ca55058e", size = 286487 },
     { url = "https://files.pythonhosted.org/packages/56/bc/97b2245c8c7b2dd01f2db74f2bea003cd33c15009b4996a2447f46b5325c/regex-2026.9.29-cp315-cp315t-win_arm64.whl", hash = "sha256:e8c65ef3862a8ad6e86492b6ed9327805dd66904c012bd3649dc67d822ed6c34", size = 285955 },
+]
+
+[[package]]
+name = "relcon-docs"
+version = "0.1.0"
+source = { git = "https://github.com/relaxed-constraints/relcon-docs.git?rev=ea4aa3ded66f09a8963a5f12655f9e601e286400#ea4aa3ded66f09a8963a5f12655f9e601e286400" }
+dependencies = [
+    { name = "mkdocstrings-python" },
+    { name = "pyyaml" },
+    { name = "ruff" },
+    { name = "zensical" },
 ]
 
 [[package]]

@@ -4,7 +4,8 @@
 
 The repository includes a ready-to-use Zensical site. See
 [Installation](docs/installation.md) and [Documentation setup](docs/documentation.md).
-Run `zensical serve` from an activated project environment to preview it.
+Install the documentation tools with `uv sync --locked --group docs`, then run
+`zensical serve` from the activated project environment to preview it.
 
 This repo provides a demo project using the BONDI toolkit for MongoDB research as
 a starting point and tutorial. 
