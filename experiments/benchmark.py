@@ -3,8 +3,8 @@
 from statistics import median
 
 import yanex
+from bondi import IndexSet
 from bondi.workload import Workload
-from pymongo import MongoClient
 
 from bondi_demo.benchmark import apply_indexes, benchmark_workload
 
@@ -31,15 +31,16 @@ def main():
             "Provide index_set, one of `baseline`, `single`, or `compound`. See configs/benchmark.yaml"
         )
 
-    # Get correct index set from config based on `index_set` parameter
-    indexes = params["indexes"][params["index_set"]]
+    # Bind the selected scenario to the collection recorded by preparation.
+    indexes = IndexSet.from_dict({collection: params["indexes"][params["index_set"]]})
+    yanex.save_artifact(indexes, "indexes.json", saver=lambda obj, path: obj.save(path))
 
     # Index creation is setup, not part of the measured query execution time.
-    with MongoClient(manifest["uri"]) as client:
-        apply_indexes(client[database][collection], indexes)
-        print(f"> Applied indexes for index set '{params['index_set']}'")
-        for i, index in enumerate(indexes):
-            print(f"  {i}. {index}")
+    names = apply_indexes(manifest["uri"], database=database, indexes=indexes)
+    yanex.save_artifact(names, "index_names.json")
+    print(f"> Applied indexes for index set '{params['index_set']}'")
+    for index in indexes[collection]:
+        print(f"  {index}")
 
     rows = benchmark_workload(
         manifest["uri"],

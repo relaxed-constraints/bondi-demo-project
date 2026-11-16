@@ -258,7 +258,7 @@ wheels = [
 
 [[package]]
 name = "bondi"
-version = "0.3.4"
+version = "0.3.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -269,9 +269,9 @@ dependencies = [
     { name = "pymongo" },
     { name = "rich" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f7/0e/0fc3169a041094e1c2a9b9565064bb9b85d1ed053b548625c0a1b9adb994/bondi-0.3.4.tar.gz", hash = "sha256:75c426eae208f6c8fced746476f8dca46f088795202802f8849be0832fa1cb95", size = 371165 }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/20/981a465bcfeb016c688e159b9a07ca27c3fcf9dbfb70393a401e57ab8caf/bondi-0.3.6.tar.gz", hash = "sha256:7603c1256f78368575783f5bba8a25794d7db6840b21960e9c3f9990990b7384", size = 389122 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/62/3378520e330ba3556585af46761ea55009c2e9133746b76d3fa799a04402/bondi-0.3.4-py3-none-any.whl", hash = "sha256:24a4986db809642de5035eec7bdadfdf2fc3617bc043fc0e8c0c1c71edea3d73", size = 129628 },
+    { url = "https://files.pythonhosted.org/packages/75/fb/7cb91ca58ad5e940d2ec521ef0e33a69368a52a549869ec9c50e8b94e048/bondi-0.3.6-py3-none-any.whl", hash = "sha256:271dd340acdad6067f227ae00540e7ffe33536fada0fb607313d0dbc830f28d2", size = 142651 },
 ]
 
 [[package]]
@@ -299,7 +299,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bondi", specifier = "==0.3.4" },
+    { name = "bondi", specifier = "==0.3.6" },
     { name = "huggingface-hub", specifier = ">=0.30,<2" },
     { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "matplotlib", specifier = ">=3.11.2" },

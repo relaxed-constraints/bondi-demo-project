@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 import yanex
+from bondi import IndexSet
 from bondi.execution import ExecutionResult
 from bondi.mongodb import MongoCollectionRef, MongoFindQuery
 from bondi.workload import Workload, WorkloadEntry
@@ -25,16 +26,56 @@ def workload():
 
 
 def test_index_replacement_preserves_compound_order():
-    collection = MagicMock()
-    apply_indexes(collection, [[["Make", 1], ["Model Year", -1]]])
-    assert collection.method_calls == [
-        call.drop_indexes(),
-        call.create_index([("Make", 1), ("Model Year", -1)]),
-    ]
-    collection.reset_mock()
-    apply_indexes(collection, [])
-    collection.drop_indexes.assert_called_once()
-    collection.create_index.assert_not_called()
+    indexes = IndexSet.from_dict(
+        {"cars": [{"kind": "mongodb", "keys": [["Make", 1], ["Model Year", -1]]}]}
+    )
+    with (
+        patch("bondi_demo.benchmark.MongoClient") as connect,
+        patch("bondi_demo.benchmark.create_indexes", return_value={"cars": ["compound"]}) as create,
+    ):
+        collection = connect.return_value.__enter__.return_value["demo"]["cars"]
+        collection.drop_indexes.side_effect = lambda: create.assert_not_called()
+        assert apply_indexes("mongodb://localhost", database="demo", indexes=indexes) == {
+            "cars": ["compound"]
+        }
+        collection.drop_indexes.assert_called_once()
+        assert create.call_args.kwargs["indexes"]["cars"][0].keys == (
+            ("Make", 1),
+            ("Model Year", -1),
+        )
+        assert create.call_args.kwargs["database"] == "demo"
+        assert create.call_args.args[0].uri == "mongodb://localhost"
+
+        collection.reset_mock(side_effect=True)
+        baseline = IndexSet({"cars": []})
+        apply_indexes("mongodb://localhost", database="demo", indexes=baseline)
+        collection.drop_indexes.assert_called_once()
+        assert create.call_args.kwargs["indexes"]["cars"] == []
+
+
+def test_invalid_definitions_do_not_drop_indexes():
+    from bondi.couchbase import CouchbaseIndex
+
+    indexes = IndexSet({"cars": [CouchbaseIndex((("Make", 1),))]})
+    with patch("bondi_demo.benchmark.MongoClient") as connect:
+        with pytest.raises(TypeError, match="MongoDB benchmark"):
+            apply_indexes("mongodb://localhost", database="demo", indexes=indexes)
+        connect.assert_not_called()
+
+
+def test_config_index_sets_roundtrip(tmp_path):
+    import yaml
+
+    root = Path(__file__).resolve().parents[1]
+    config = yaml.safe_load((root / "experiments/configs/benchmark.yaml").read_text())
+    expected = {"baseline": 0, "single": 5, "compound": 4}
+    for name, count in expected.items():
+        indexes = IndexSet.from_dict({"cars": config["indexes"][name]})
+        indexes.save(tmp_path / "indexes.json")
+        assert IndexSet.load(tmp_path / "indexes.json").to_dict() == indexes.to_dict()
+        assert len(indexes["cars"]) == count
+    compound = IndexSet.from_dict({"cars": config["indexes"]["compound"]})
+    assert compound["cars"][0].keys == (("Make", 1), ("Model Year", 1))
 
 
 def test_warmup_excluded_and_failures_retained(workload):
@@ -56,7 +97,7 @@ def test_warmup_excluded_and_failures_retained(workload):
 
 
 @pytest.mark.parametrize("failed", [False, True])
-def test_experiment_saves_measurements_before_reporting(workload, failed):
+def test_experiment_saves_measurements_before_reporting(workload, failed, tmp_path):
     dependency = MagicMock()
     dependency.load_artifact.return_value = workload
     rows = [{"repetition": 0, "elapsed_ms": 5, "status": "error" if failed else "success"}]
@@ -83,8 +124,7 @@ def test_experiment_saves_measurements_before_reporting(workload, failed):
         ),
         patch.object(yanex, "save_artifact") as save,
         patch.object(yanex, "log_metrics") as log,
-        patch("pymongo.MongoClient"),
-        patch("bondi_demo.benchmark.apply_indexes"),
+        patch("bondi_demo.benchmark.apply_indexes", return_value={"cars": []}) as apply,
         patch("bondi_demo.benchmark.benchmark_workload", return_value=rows),
     ):
         script = Path(__file__).resolve().parents[1] / "experiments/benchmark.py"
@@ -95,4 +135,10 @@ def test_experiment_saves_measurements_before_reporting(workload, failed):
         else:
             runpy.run_path(str(script), run_name="__main__")
             assert log.call_args.args[0]["median_workload_ms"] == 5
-        assert save.call_args_list[0] == call(rows, "query_results.jsonl")
+        saved_indexes = save.call_args_list[0]
+        assert saved_indexes.args[1] == "indexes.json"
+        saved_indexes.kwargs["saver"](saved_indexes.args[0], tmp_path / "indexes.json")
+        assert IndexSet.load(tmp_path / "indexes.json").to_dict() == {"cars": []}
+        assert save.call_args_list[1] == call({"cars": []}, "index_names.json")
+        assert save.call_args_list[2] == call(rows, "query_results.jsonl")
+        assert apply.call_args.kwargs["database"] == "demo"

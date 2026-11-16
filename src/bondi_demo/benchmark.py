@@ -1,18 +1,34 @@
 """Apply an index set and measure a saved workload, independently of Yanex."""
 
-from bondi.mongodb import MongoExecutor
+from bondi import FieldIndex, IndexSet, MongoConnection
+from bondi.mongodb import MongoExecutor, MongoIndex, create_indexes
 from bondi.workload import Workload
+from pymongo import MongoClient
 
 
-def apply_indexes(collection, indexes: list) -> None:
-    """Replace secondary indexes on the demo collection; MongoDB keeps _id_.
+def apply_indexes(uri: str, *, database: str, indexes: IndexSet) -> dict[str, list[str]]:
+    """Replace the selected collections' secondary indexes and return created names.
 
-    Each index is an ordered list of [field, direction] pairs. Run experiments
-    sequentially because index changes affect everyone using this collection.
+    IndexSet keys are collection names. The demo owns the destructive reset;
+    BONDI creates the definitions and waits for their initial builds. MongoDB
+    keeps its built-in _id_ index. Run scenarios sequentially on a dedicated
+    demo database because index changes affect all users of these collections.
     """
-    collection.drop_indexes()
-    for keys in indexes:
-        collection.create_index([(field, direction) for field, direction in keys])
+    indexes.validate()
+    for definitions in indexes.values():
+        names = set()
+        for index in definitions:
+            if not isinstance(index, (FieldIndex, MongoIndex)):
+                raise TypeError("The MongoDB benchmark requires FieldIndex or MongoIndex")
+            if index.resolved_name in names:
+                raise ValueError("Duplicate index name in benchmark configuration")
+            names.add(index.resolved_name)
+
+    # Index replacement belongs to this experiment, not BONDI's creation API.
+    with MongoClient(uri) as client:
+        for collection in indexes:
+            client[database][collection].drop_indexes()
+    return create_indexes(MongoConnection(uri), database=database, indexes=indexes)
 
 
 def benchmark_workload(

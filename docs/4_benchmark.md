@@ -14,7 +14,9 @@ The helpers are ordinary Python functions you can also call from tests or notebo
 
 ## How index sets are represented
 
-One YAML file contains all index sets, the active set is specified with the `index_set` parameter. An index is an ordered list of `[field, direction]` pairs: `1` means ascending and `-1` means descending.
+One YAML file contains all index sets, the active set is specified with the `index_set` parameter. Each entry is a BONDI index definition. Shared `fields` entries create ascending
+`FieldIndex` definitions; native `kind: mongodb` entries use `MongoIndex` with
+ordered `keys` pairs: `1` means ascending and `-1` means descending.
 
 | `index_set` | Indexes |
 | --- | --- |
@@ -22,7 +24,38 @@ One YAML file contains all index sets, the active set is specified with the `ind
 | `single` | Separate indexes on City, Model Year, State, Make, Color |
 | `compound` | Compound indexes on (Make, Model Year), (City, Color, Model Year), (State, Color), (Make, City) |
 
-The baseline is represented by an empty list.
+The baseline is represented by an empty list. For example:
+
+```yaml
+indexes:
+  baseline: []
+  single:
+    - fields: [Make]
+    - kind: mongodb
+      keys: [[Model Year, 1]]
+```
+
+The script wraps the selected scenario with the collection name from the dataset
+manifest and calls `IndexSet.from_dict({collection: definitions})`. BONDI 0.3.6's
+shared field-path validation excludes spaces, so this project uses `MongoIndex`
+for definitions containing `Model Year`; MongoDB itself supports these names.
+
+The helper drops secondary indexes on that collection, then calls BONDI's
+`create_indexes(MongoConnection(uri), database=database, indexes=indexes)`.
+The baseline still drops secondary indexes while retaining MongoDB's `_id_` index.
+This reset is experiment policy: BONDI's creation API never drops indexes itself.
+Run the comparisons sequentially on your dedicated demo database.
+
+The selected set is saved using `IndexSet.save()` as `indexes.json`. You can reuse it:
+
+```python
+from bondi import IndexSet
+
+indexes = IndexSet.load("indexes.json")
+```
+
+See [BONDI index definitions](https://relaxed-constraints.github.io/bondi/indexes/)
+for persistence and native options.
 
 Field order matters in a compound index. These are deliberately simple candidate
 sets, not recommendations tailored to the generated workload. MongoDB chooses
@@ -62,6 +95,9 @@ We log the median execution time `median_workload_ms` across all repetitions, an
 `yanex.log_metrics()`. These can then be retrieved in the analysis phase using the Yanex Results API.
 
 **Artifacts**:
+
+- `indexes.json`: versioned BONDI IndexSet, saved before index creation.
+- `index_names.json`: created index names grouped by collection.
 
 - `query_results.jsonl`: repetition, query ID, pattern ID, elapsed milliseconds,
   returned row count, status and error.
