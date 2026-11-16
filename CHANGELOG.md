@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Upgrade to BONDI 0.3.8 and its renamed index lifecycle APIs.
+
+
 - Install relcon-docs 0.1.0 from PyPI and enable shared heading permalinks.
 
 - Update relcon-docs to inherit alphabetical API members and exclude private members.

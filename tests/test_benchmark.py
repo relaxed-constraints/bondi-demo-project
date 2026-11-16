@@ -27,38 +27,32 @@ def workload():
 
 def test_index_replacement_preserves_compound_order():
     indexes = IndexSet.from_dict({"cars": [{"keys": [["Make", 1], ["Model Year", -1]]}]})
-    with (
-        patch("bondi_demo.benchmark.MongoClient") as connect,
-        patch("bondi_demo.benchmark.create_indexes", return_value={"cars": ["compound"]}) as create,
-    ):
-        collection = connect.return_value.__enter__.return_value["demo"]["cars"]
-        collection.drop_indexes.side_effect = lambda: create.assert_not_called()
+    with patch(
+        "bondi_demo.benchmark.create_indexes", return_value={"cars": ["compound"]}
+    ) as create:
         assert apply_indexes("mongodb://localhost", database="demo", indexes=indexes) == {
             "cars": ["compound"]
         }
-        collection.drop_indexes.assert_called_once()
         assert create.call_args.kwargs["indexes"]["cars"][0].keys == (
             ("Make", 1),
             ("Model Year", -1),
         )
         assert create.call_args.kwargs["database"] == "demo"
+        assert create.call_args.kwargs["replace"] is True
         assert create.call_args.args[0].uri == "mongodb://localhost"
 
-        collection.reset_mock(side_effect=True)
         baseline = IndexSet({"cars": []})
         apply_indexes("mongodb://localhost", database="demo", indexes=baseline)
-        collection.drop_indexes.assert_called_once()
         assert create.call_args.kwargs["indexes"]["cars"] == []
+        assert create.call_args.kwargs["replace"] is True
 
 
-def test_invalid_definitions_do_not_drop_indexes():
-    from bondi.couchbase import CouchbaseIndex
-
-    indexes = IndexSet({"cars": [CouchbaseIndex((("Make", 1),))]})
-    with patch("bondi_demo.benchmark.MongoClient") as connect:
-        with pytest.raises(TypeError, match="MongoDB benchmark"):
-            apply_indexes("mongodb://localhost", database="demo", indexes=indexes)
-        connect.assert_not_called()
+def test_index_failure_propagates():
+    failure = RuntimeError("index replacement failed")
+    with patch("bondi_demo.benchmark.create_indexes", side_effect=failure):
+        with pytest.raises(RuntimeError) as caught:
+            apply_indexes("mongodb://localhost", database="demo", indexes=IndexSet({"cars": []}))
+    assert caught.value is failure
 
 
 def test_config_index_sets_roundtrip(tmp_path):

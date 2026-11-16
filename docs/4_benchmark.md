@@ -35,7 +35,7 @@ indexes:
 ```
 
 The script wraps the selected scenario with the collection name from the dataset
-manifest and calls `IndexSet.from_dict({collection: definitions})`. BONDI 0.3.7
+manifest and calls `IndexSet.from_dict({collection: definitions})`. BONDI 0.3.8
 supports spaces in shared field names, so every scenario here uses `FieldIndex`,
 including indexes on `Model Year`.
 
@@ -46,11 +46,13 @@ Use `keys` when specifying directions explicitly, such as
 `fields` is a config convenience, not a different Python API. Use `kind: mongodb`
 only when native options such as `unique` or `partial_filter` are needed.
 
-The helper drops secondary indexes on that collection, then calls BONDI's
-`create_indexes(MongoConnection(uri), database=database, indexes=indexes)`.
-The baseline still drops secondary indexes while retaining MongoDB's `_id_` index.
-This reset is experiment policy: BONDI's creation API never drops indexes itself.
-Run the comparisons sequentially on your dedicated demo database.
+The helper calls BONDI's generic
+`create_indexes(MongoConnection(uri), database=database, indexes=indexes, replace=True)`.
+BONDI dispatches to MongoDB, removes secondary indexes on included collections and
+waits for the new indexes to build. The empty baseline clears secondary indexes
+while retaining MongoDB's `_id_` index. Omitted collections are untouched.
+Replacement is non-atomic; a failed build can leave only part of the new set.
+Run comparisons sequentially on your dedicated demo database.
 
 The selected set is saved using `IndexSet.save()` as `indexes.json`. You can reuse it:
 

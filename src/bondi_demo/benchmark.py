@@ -1,34 +1,19 @@
 """Apply an index set and measure a saved workload, independently of Yanex."""
 
-from bondi import FieldIndex, IndexSet, MongoConnection
-from bondi.mongodb import MongoExecutor, MongoIndex, create_indexes
+from bondi import IndexSet, MongoConnection, create_indexes
+from bondi.mongodb import MongoExecutor
 from bondi.workload import Workload
-from pymongo import MongoClient
 
 
 def apply_indexes(uri: str, *, database: str, indexes: IndexSet) -> dict[str, list[str]]:
     """Replace the selected collections' secondary indexes and return created names.
 
-    IndexSet keys are collection names. The demo owns the destructive reset;
-    BONDI creates the definitions and waits for their initial builds. MongoDB
-    keeps its built-in _id_ index. Run scenarios sequentially on a dedicated
-    demo database because index changes affect all users of these collections.
+    IndexSet keys are collection names. BONDI replaces secondary indexes, preserves
+    MongoDB's built-in _id_ index and waits for initial builds. Empty collection lists
+    clear secondary indexes. Run scenarios sequentially on a dedicated demo database;
+    replacement is non-atomic and affects every user of those collections.
     """
-    indexes.validate()
-    for definitions in indexes.values():
-        names = set()
-        for index in definitions:
-            if not isinstance(index, (FieldIndex, MongoIndex)):
-                raise TypeError("The MongoDB benchmark requires FieldIndex or MongoIndex")
-            if index.resolved_name in names:
-                raise ValueError("Duplicate index name in benchmark configuration")
-            names.add(index.resolved_name)
-
-    # Index replacement belongs to this experiment, not BONDI's creation API.
-    with MongoClient(uri) as client:
-        for collection in indexes:
-            client[database][collection].drop_indexes()
-    return create_indexes(MongoConnection(uri), database=database, indexes=indexes)
+    return create_indexes(MongoConnection(uri), database=database, indexes=indexes, replace=True)
 
 
 def benchmark_workload(
