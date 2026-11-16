@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 import yanex
-from bondi import IndexSet
+from bondi import FieldIndex, IndexSet
 from bondi.execution import ExecutionResult
 from bondi.mongodb import MongoCollectionRef, MongoFindQuery
 from bondi.workload import Workload, WorkloadEntry
@@ -26,9 +26,7 @@ def workload():
 
 
 def test_index_replacement_preserves_compound_order():
-    indexes = IndexSet.from_dict(
-        {"cars": [{"kind": "mongodb", "keys": [["Make", 1], ["Model Year", -1]]}]}
-    )
+    indexes = IndexSet.from_dict({"cars": [{"keys": [["Make", 1], ["Model Year", -1]]}]})
     with (
         patch("bondi_demo.benchmark.MongoClient") as connect,
         patch("bondi_demo.benchmark.create_indexes", return_value={"cars": ["compound"]}) as create,
@@ -74,6 +72,7 @@ def test_config_index_sets_roundtrip(tmp_path):
         indexes.save(tmp_path / "indexes.json")
         assert IndexSet.load(tmp_path / "indexes.json").to_dict() == indexes.to_dict()
         assert len(indexes["cars"]) == count
+        assert all(type(index) is FieldIndex for index in indexes["cars"])
     compound = IndexSet.from_dict({"cars": config["indexes"]["compound"]})
     assert compound["cars"][0].keys == (("Make", 1), ("Model Year", 1))
 

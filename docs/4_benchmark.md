@@ -14,9 +14,9 @@ The helpers are ordinary Python functions you can also call from tests or notebo
 
 ## How index sets are represented
 
-One YAML file contains all index sets, the active set is specified with the `index_set` parameter. Each entry is a BONDI index definition. Shared `fields` entries create ascending
-`FieldIndex` definitions; native `kind: mongodb` entries use `MongoIndex` with
-ordered `keys` pairs: `1` means ascending and `-1` means descending.
+One YAML file contains all index sets, the active set is specified with the `index_set` parameter. Each entry uses the `fields` shorthand to create an ascending BONDI `FieldIndex`.
+The explicit `keys` form accepts ordered `[field, direction]` pairs: `1` means
+ascending and `-1` means descending.
 
 | `index_set` | Indexes |
 | --- | --- |
@@ -31,14 +31,20 @@ indexes:
   baseline: []
   single:
     - fields: [Make]
-    - kind: mongodb
-      keys: [[Model Year, 1]]
+    - fields: [Model Year]
 ```
 
 The script wraps the selected scenario with the collection name from the dataset
-manifest and calls `IndexSet.from_dict({collection: definitions})`. BONDI 0.3.6's
-shared field-path validation excludes spaces, so this project uses `MongoIndex`
-for definitions containing `Model Year`; MongoDB itself supports these names.
+manifest and calls `IndexSet.from_dict({collection: definitions})`. BONDI 0.3.7
+supports spaces in shared field names, so every scenario here uses `FieldIndex`,
+including indexes on `Model Year`.
+
+`fields: [Make, Model Year]` is shorthand for
+`keys: [[Make, 1], [Model Year, 1]]` with `kind: field` (the default).
+Use `keys` when specifying directions explicitly, such as
+`keys: [[Make, 1], [Model Year, -1]]`. Both Python constructors accept `keys`;
+`fields` is a config convenience, not a different Python API. Use `kind: mongodb`
+only when native options such as `unique` or `partial_filter` are needed.
 
 The helper drops secondary indexes on that collection, then calls BONDI's
 `create_indexes(MongoConnection(uri), database=database, indexes=indexes)`.

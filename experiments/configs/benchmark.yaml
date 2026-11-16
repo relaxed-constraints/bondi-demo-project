@@ -2,21 +2,18 @@
 index_set: "baseline"
 
 # Each scenario lists BONDI definitions for the prepared collection.
-# Shared fields use ascending directions; native MongoDB keys allow "Model Year".
+# fields is shorthand for an ascending FieldIndex, including names with spaces.
 indexes:
   baseline: []
   single:
     - fields: [City]
-    - kind: mongodb
-      keys: [[Model Year, 1]]
+    - fields: [Model Year]
     - fields: [Make]
     - fields: [State]
     - fields: [Color]
   compound:
-    - kind: mongodb
-      keys: [[Make, 1], [Model Year, 1]]
-    - kind: mongodb
-      keys: [[City, 1], [Color, 1], [Model Year, 1]]
+    - fields: [Make, Model Year]
+    - fields: [City, Color, Model Year]
     - fields: [State, Color]
     - fields: [Make, City]
 
