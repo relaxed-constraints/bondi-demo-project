@@ -15,7 +15,6 @@ SCRIPT = Path(__file__).resolve().parents[1] / "experiments" / "prepare_db.py"
 @pytest.mark.parametrize("start_docker", [False, True])
 @pytest.mark.parametrize("fail", [False, True])
 def test_manifest_only_saved_after_success(fail, start_docker):
-    client = MagicMock()
     deployment = MagicMock(uri="mongodb://127.0.0.1:27019/", image="mongo:test")
     deployment.name = "bondi-demo"
     with (
@@ -32,9 +31,7 @@ def test_manifest_only_saved_after_success(fail, start_docker):
         ),
         patch.object(yanex, "save_artifact") as save,
         patch.object(yanex, "log_metrics") as metrics,
-        patch.object(data, "download_dataset", return_value=Path("cached.jsonl")),
-        patch.object(data, "import_dataset", return_value=data.EXPECTED_RECORDS) as importer,
-        patch("pymongo.MongoClient", return_value=client) as connect,
+        patch.object(data, "load_dataset", return_value=data.EXPECTED_RECORDS) as importer,
         patch("bondi.deployment.deploy_mongodb", return_value=deployment) as deploy,
     ):
         if fail:
@@ -48,14 +45,15 @@ def test_manifest_only_saved_after_success(fail, start_docker):
             manifest, filename = save.call_args.args
             assert filename == "dataset_manifest.json"
             assert manifest["population"] == 189010
+            assert manifest["dataset_revision"] == data.DATASET_REVISION
+            assert manifest["dataset_config"] == "electric_vehicles"
+            assert manifest["dataset_split"] == "train"
+            assert manifest["dataset_sha256"] == data.DATASET_SHA256
             assert manifest["dataset_file"] == "electric_vehicles/train.jsonl"
             assert manifest["deployment_name"] == ("bondi-demo" if start_docker else None)
             assert manifest["deployment_image"] == ("mongo:test" if start_docker else None)
-        connect.assert_called_once_with(
-            "mongodb://127.0.0.1:27019/", serverSelectionTimeoutMS=10000
-        )
+        importer.assert_called_once_with("mongodb://127.0.0.1:27019/", batch_size=1000, reset=False)
         if start_docker:
             deploy.assert_called_once_with("bondi-demo", port=27019)
         else:
             deploy.assert_not_called()
-        client.__exit__.assert_called_once()
