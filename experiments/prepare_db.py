@@ -20,18 +20,16 @@ def main():
         print(f"> Deployed MongoDB at {deployment.uri}")
         uri = deployment.uri
 
-    # BONDI reads and batches the pinned source; the helper checks reproducibility
-    # and handles this demo's reset and failed-import cleanup policy.
+    # BONDI downloads and loads the source; the helper handles this demo's
+    # reset and failed-import cleanup policy.
     count = data.load_dataset(uri, batch_size=batch_size, reset=reset)
     print(f"> Imported {count} records into {data.DATABASE}.{data.COLLECTION}")
 
     manifest = {
         "dataset_repo": data.DATASET_REPO,
         "dataset_file": data.DATASET_FILE,
-        "dataset_revision": data.DATASET_REVISION,
         "dataset_config": data.DATASET_CONFIG,
         "dataset_split": data.DATASET_SPLIT,
-        "dataset_sha256": data.DATASET_SHA256,
         "namespace": f"{data.DATABASE}.{data.COLLECTION}",
         "population": count,
         "uri": uri,

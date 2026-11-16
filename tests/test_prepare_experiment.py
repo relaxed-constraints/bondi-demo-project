@@ -45,10 +45,8 @@ def test_manifest_only_saved_after_success(fail, start_docker):
             manifest, filename = save.call_args.args
             assert filename == "dataset_manifest.json"
             assert manifest["population"] == 189010
-            assert manifest["dataset_revision"] == data.DATASET_REVISION
             assert manifest["dataset_config"] == "electric_vehicles"
             assert manifest["dataset_split"] == "train"
-            assert manifest["dataset_sha256"] == data.DATASET_SHA256
             assert manifest["dataset_file"] == "electric_vehicles/train.jsonl"
             assert manifest["deployment_name"] == ("bondi-demo" if start_docker else None)
             assert manifest["deployment_image"] == ("mongo:test" if start_docker else None)

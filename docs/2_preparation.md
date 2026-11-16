@@ -11,18 +11,19 @@ Make sure you have installed Docker and have gone through the Python environment
 
 ## Read these three files
 
-1. [src/bondi_demo/data.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/src/bondi_demo/data.py): pinned source settings, checksum verification, and demo reset/cleanup policy around BONDI loading.
+1. [src/bondi_demo/data.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/src/bondi_demo/data.py): source settings and demo reset/cleanup policy around BONDI loading.
 2. [experiments/prepare_db.py](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/prepare_db.py): experiment script to deploy MongoDB, calls the data functions,
    and logs some results.
 3. [experiments/configs/prepare.yaml](https://github.com/relaxed-constraints/bondi-demo-project/blob/main/experiments/configs/prepare.yaml): the few settings you can change.
 
 
-### 1. Data helper functions
+### 1. Data loading helper
 
-You'll find 2 main functions in `src/bondi_demo/data.py` for handling the dataset:
-
-- `download_dataset()`: caches the pinned training file and verifies its SHA-256 checksum before any database changes.
-- `load_dataset(uri, ...)`: calls BONDI's `load_hf_dataset()` for the `electric_vehicles` configuration and `train` split at the pinned revision. BONDI handles source decoding, batching and writes; the helper verifies both acknowledged writes and the final collection count.
+`load_dataset(uri, ...)` in `src/bondi_demo/data.py` calls BONDI's
+`load_hf_dataset()` for the `electric_vehicles` configuration and `train` split.
+BONDI handles downloading, source decoding, batching and writes; the helper
+checks the acknowledged writes and final collection count. The demo uses the
+repository's current default revision, without a revision pin or checksum check.
 
 The helper keeps the demo's existing safety policy: an existing collection requires
 `reset=True`, which drops that collection and its indexes before loading. A failed
@@ -30,8 +31,7 @@ or interrupted import removes the partial collection. BONDI itself reports parti
 writes without rolling them back; this cleanup is specific to the demo. Do not run
 preparation concurrently on the same database.
 
-BONDI uses the Hugging Face cache (`streaming=False`), so the checksum download is
-reused rather than fetched again. JSON is read in plain mode. Rows without `_id`
+BONDI uses the Hugging Face cache (`streaming=False`). JSON is read in plain mode. Rows without `_id`
 receive BONDI's deterministic source-based IDs instead of fresh MongoDB ObjectIds;
 the source fields and document count remain unchanged.
 
@@ -47,7 +47,7 @@ The experiment script is under `experiments/prepare_db.py` and makes use of the 
 
 1. **Reading yanex parameters** (further reading: [Parameter Access](https://github.com/rueckstiess/yanex/blob/main/docs/run-api.md#parameter-access) documentation or the Yanex examples [1 Basic Usage](https://github.com/rueckstiess/yanex/blob/main/examples/cli/01_basic_usage/README.md) and [2 Configuration Files](https://github.com/rueckstiess/yanex/blob/main/examples/cli/02_config_files/README.md))
 2. **Deploying MongoDB** using BONDI's deployment API (further reading: [BONDI Deployment](https://relaxed-constraints.github.io/bondi/deployment/))
-3. **Checking and loading the dataset** with `load_dataset()`, which verifies the pinned file and delegates loading to BONDI.
+3. **Loading the dataset** with `load_dataset()`, which delegates downloading and loading to BONDI.
 4. **Verifying the import** contains the expected 189,010 documents.
 5. **Saving a manifest artifact** to keep track of the dataset import and other relevant experiment metadata (further reading: [yanex.save_artifact()](https://github.com/rueckstiess/yanex/blob/main/docs/run-api.md#yanexsave_artifactobj-filename-savernone)
 
@@ -125,7 +125,7 @@ yanex open <experiment-id>
 In there, you will find an `artifacts` subdirectory containing the logged artifacts of the experiment.
 
 The run's `dataset_manifest.json` contains the dataset repository, filename,
-revision, configuration, split, SHA-256 checksum, namespace, document count,
+configuration, split, namespace, document count,
 local connection URI, and deployment name/image
 (when managed by BONDI). Numeric metrics
 include `imported_records`.

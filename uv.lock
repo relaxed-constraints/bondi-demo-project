@@ -280,7 +280,6 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "bondi" },
-    { name = "huggingface-hub" },
     { name = "ipykernel" },
     { name = "matplotlib" },
     { name = "pandas" },
@@ -300,7 +299,6 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "bondi", specifier = "==0.3.7" },
-    { name = "huggingface-hub", specifier = ">=0.30,<2" },
     { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "matplotlib", specifier = ">=3.11.2" },
     { name = "pandas", specifier = ">=3.1.0" },
