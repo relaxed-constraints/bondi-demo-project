@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Inline BONDI index replacement in the benchmark experiment and remove the
+  redundant `apply_indexes` wrapper.
+
 - Upgrade to BONDI 0.3.8 and its renamed index lifecycle APIs.
 
 

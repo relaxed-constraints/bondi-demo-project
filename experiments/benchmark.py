@@ -3,10 +3,10 @@
 from statistics import median
 
 import yanex
-from bondi import IndexSet
+from bondi import IndexSet, MongoConnection, create_indexes
 from bondi.workload import Workload
 
-from bondi_demo.benchmark import apply_indexes, benchmark_workload
+from bondi_demo.benchmark import benchmark_workload
 
 
 def main():
@@ -36,7 +36,9 @@ def main():
     yanex.save_artifact(indexes, "indexes.json", saver=lambda obj, path: obj.save(path))
 
     # Index creation is setup, not part of the measured query execution time.
-    names = apply_indexes(manifest["uri"], database=database, indexes=indexes)
+    names = create_indexes(
+        MongoConnection(manifest["uri"]), database=database, indexes=indexes, replace=True
+    )
     yanex.save_artifact(names, "index_names.json")
     print(f"> Applied indexes for index set '{params['index_set']}'")
     for index in indexes[collection]:

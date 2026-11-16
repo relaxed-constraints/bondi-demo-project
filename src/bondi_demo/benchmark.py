@@ -1,19 +1,7 @@
-"""Apply an index set and measure a saved workload, independently of Yanex."""
+"""Measure a saved workload, independently of Yanex."""
 
-from bondi import IndexSet, MongoConnection, create_indexes
 from bondi.mongodb import MongoExecutor
 from bondi.workload import Workload
-
-
-def apply_indexes(uri: str, *, database: str, indexes: IndexSet) -> dict[str, list[str]]:
-    """Replace the selected collections' secondary indexes and return created names.
-
-    IndexSet keys are collection names. BONDI replaces secondary indexes, preserves
-    MongoDB's built-in _id_ index and waits for initial builds. Empty collection lists
-    clear secondary indexes. Run scenarios sequentially on a dedicated demo database;
-    replacement is non-atomic and affects every user of those collections.
-    """
-    return create_indexes(MongoConnection(uri), database=database, indexes=indexes, replace=True)
 
 
 def benchmark_workload(

@@ -11,7 +11,7 @@ from bondi.execution import ExecutionResult
 from bondi.mongodb import MongoCollectionRef, MongoFindQuery
 from bondi.workload import Workload, WorkloadEntry
 
-from bondi_demo.benchmark import apply_indexes, benchmark_workload
+from bondi_demo.benchmark import benchmark_workload
 
 
 @pytest.fixture
@@ -23,36 +23,6 @@ def workload():
             )
         ]
     )
-
-
-def test_index_replacement_preserves_compound_order():
-    indexes = IndexSet.from_dict({"cars": [{"keys": [["Make", 1], ["Model Year", -1]]}]})
-    with patch(
-        "bondi_demo.benchmark.create_indexes", return_value={"cars": ["compound"]}
-    ) as create:
-        assert apply_indexes("mongodb://localhost", database="demo", indexes=indexes) == {
-            "cars": ["compound"]
-        }
-        assert create.call_args.kwargs["indexes"]["cars"][0].keys == (
-            ("Make", 1),
-            ("Model Year", -1),
-        )
-        assert create.call_args.kwargs["database"] == "demo"
-        assert create.call_args.kwargs["replace"] is True
-        assert create.call_args.args[0].uri == "mongodb://localhost"
-
-        baseline = IndexSet({"cars": []})
-        apply_indexes("mongodb://localhost", database="demo", indexes=baseline)
-        assert create.call_args.kwargs["indexes"]["cars"] == []
-        assert create.call_args.kwargs["replace"] is True
-
-
-def test_index_failure_propagates():
-    failure = RuntimeError("index replacement failed")
-    with patch("bondi_demo.benchmark.create_indexes", side_effect=failure):
-        with pytest.raises(RuntimeError) as caught:
-            apply_indexes("mongodb://localhost", database="demo", indexes=IndexSet({"cars": []}))
-    assert caught.value is failure
 
 
 def test_config_index_sets_roundtrip(tmp_path):
@@ -117,7 +87,7 @@ def test_experiment_saves_measurements_before_reporting(workload, failed, tmp_pa
         ),
         patch.object(yanex, "save_artifact") as save,
         patch.object(yanex, "log_metrics") as log,
-        patch("bondi_demo.benchmark.apply_indexes", return_value={"cars": []}) as apply,
+        patch("bondi.create_indexes", return_value={"cars": []}) as create,
         patch("bondi_demo.benchmark.benchmark_workload", return_value=rows),
     ):
         script = Path(__file__).resolve().parents[1] / "experiments/benchmark.py"
@@ -134,4 +104,7 @@ def test_experiment_saves_measurements_before_reporting(workload, failed, tmp_pa
         assert IndexSet.load(tmp_path / "indexes.json").to_dict() == {"cars": []}
         assert save.call_args_list[1] == call({"cars": []}, "index_names.json")
         assert save.call_args_list[2] == call(rows, "query_results.jsonl")
-        assert apply.call_args.kwargs["database"] == "demo"
+        assert create.call_args.kwargs["database"] == "demo"
+        assert create.call_args.kwargs["replace"] is True
+        assert create.call_args.kwargs["indexes"].to_dict() == {"cars": []}
+        assert create.call_args.args[0].uri == "mongodb://localhost"

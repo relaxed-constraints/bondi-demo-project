@@ -46,7 +46,7 @@ Use `keys` when specifying directions explicitly, such as
 `fields` is a config convenience, not a different Python API. Use `kind: mongodb`
 only when native options such as `unique` or `partial_filter` are needed.
 
-The helper calls BONDI's generic
+The experiment script calls BONDI's generic
 `create_indexes(MongoConnection(uri), database=database, indexes=indexes, replace=True)`.
 BONDI dispatches to MongoDB, removes secondary indexes on included collections and
 waits for the new indexes to build. The empty baseline clears secondary indexes
