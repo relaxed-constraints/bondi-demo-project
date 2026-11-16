@@ -12,7 +12,6 @@ from pymongo import MongoClient
 DATASET_REPO = "origami-ml/jsynth-data"
 DATASET_CONFIG = "electric_vehicles"
 DATASET_SPLIT = "train"
-DATASET_FILE = "electric_vehicles/train.jsonl"
 EXPECTED_RECORDS = 189010
 DATABASE = "bondi_demo"
 COLLECTION = "electric_vehicles"
@@ -42,7 +41,7 @@ def load_dataset(
             if not reset:
                 raise ValueError("Demo collection already exists; use reset=true to replace it")
             database.drop_collection(COLLECTION)
-        database.create_collection(COLLECTION)
+
         try:
             result = load_hf_dataset(
                 DATASET_REPO,

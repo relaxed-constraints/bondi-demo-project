@@ -124,7 +124,7 @@ yanex open <experiment-id>
 
 In there, you will find an `artifacts` subdirectory containing the logged artifacts of the experiment.
 
-The run's `dataset_manifest.json` contains the dataset repository, filename,
+The run's `dataset_manifest.json` contains the dataset repository,
 configuration, split, namespace, document count,
 local connection URI, and deployment name/image
 (when managed by BONDI). Numeric metrics

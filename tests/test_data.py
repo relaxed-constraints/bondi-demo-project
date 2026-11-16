@@ -41,7 +41,7 @@ def test_bondi_receives_source_and_destination(loading):
         batch_size=2,
     )
     database.drop_collection.assert_not_called()
-    database.create_collection.assert_called_once_with(data.COLLECTION)
+    database.create_collection.assert_not_called()
     connect.return_value.__exit__.assert_called_once()
 
 

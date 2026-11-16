@@ -47,7 +47,6 @@ def test_manifest_only_saved_after_success(fail, start_docker):
             assert manifest["population"] == 189010
             assert manifest["dataset_config"] == "electric_vehicles"
             assert manifest["dataset_split"] == "train"
-            assert manifest["dataset_file"] == "electric_vehicles/train.jsonl"
             assert manifest["deployment_name"] == ("bondi-demo" if start_docker else None)
             assert manifest["deployment_image"] == ("mongo:test" if start_docker else None)
         importer.assert_called_once_with("mongodb://127.0.0.1:27019/", batch_size=1000, reset=False)

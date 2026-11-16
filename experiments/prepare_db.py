@@ -27,7 +27,6 @@ def main():
 
     manifest = {
         "dataset_repo": data.DATASET_REPO,
-        "dataset_file": data.DATASET_FILE,
         "dataset_config": data.DATASET_CONFIG,
         "dataset_split": data.DATASET_SPLIT,
         "namespace": f"{data.DATABASE}.{data.COLLECTION}",
