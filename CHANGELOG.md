@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Inherit shared image lightboxes and allow relcon-docs updates within
+  `>=0.1.0,<1.0.0`, retaining the lockfile for reproducible documentation builds.
+
 - Inline BONDI index replacement in the benchmark experiment and remove the
   redundant `apply_indexes` wrapper.
 
