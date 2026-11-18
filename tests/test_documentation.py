@@ -21,7 +21,8 @@ def test_shared_defaults_keep_project_specific_features():
         "5_analysis.md",
     ]
     assert [script["path"] for script in config["extra_javascript"]] == [
-        "javascripts/relcon-docs-math.js"
+        "javascripts/relcon-docs-math.js",
+        "javascripts/relcon-docs-presentation.js",
     ]
     assert "admonition" in config["markdown_extensions"]
     assert "pymdownx.details" in config["markdown_extensions"]
@@ -33,7 +34,10 @@ def test_shared_defaults_keep_project_specific_features():
     assert python["options"]["heading_level"] == 2
     assert python["options"]["signature_crossrefs"] is True
     assert "content.action.copy" in config["theme"]["features"]
-    assert config["extra_css"] == ["stylesheets/relcon-docs.css"]
+    assert config["extra_css"] == [
+        "stylesheets/relcon-docs.css",
+        "stylesheets/relcon-docs-presentation.css",
+    ]
     assert not (ROOT / "docs/stylesheets/diagrams.css").exists()
     assert config["plugins"]["llmstxt"]["config"]["enabled"] is True
 
